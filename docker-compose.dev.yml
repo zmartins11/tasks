@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+
+  mysql:
+    image: mysql:8
+    container_name: mysqldb
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: tasksdb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    # Banco de dados do microserviço Notifications (PostgreSQL)
+  notifications-db:
+    image: postgres:16
+    container_name: notifications-db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: notifications
+    ports:
+      - "5433:5432"
+    volumes:
+      - notifications_data:/var/lib/postgresql/data
+  
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: pass
+    ports:
+      - "5672:5672"   # comunicação entre apps
+      - "15672:15672" # painel web do RabbitMQ
+
+  tasks:
+    build:
+      context: ./tasks
+      dockerfile: Dockerfile.dev   # cria um Dockerfile vazio só para dev
+    container_name: tasks-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/tasksdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: pass
+    depends_on:
+      - mysql
+      - rabbitmq
+    #command: sh -c "sleep 15 && java -jar /app/app.jar"  apenas para prod
+    volumes:
+      - ./tasks:/app
+    command: mvn spring-boot:run
+  
+  notifications:
+    build:
+      context: ./notifications
+      dockerfile: Dockerfile.dev   # cria um Dockerfile vazio só para dev
+    container_name: notifications
+    depends_on:
+      - notifications-db
+      - rabbitmq
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://notifications-db:5432/notifications
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: pass
+    ports:
+      - "8081:8080"
+    #command: sh -c "sleep 15 && java -jar /app/app.jar"  apenas para prod
+    volumes:
+      - ./notifications:/app
+    command: mvn spring-boot:run
+
+volumes:
+  mysql_data:
+  notifications_data:
