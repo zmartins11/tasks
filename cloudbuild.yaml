@@ -26,5 +26,7 @@ steps:
       '--allow-unauthenticated'
     ]
 
+logsBucket: gs://skilful-tape-469610-r3_cloudbuild
+
 images:
   - 'europe-southwest1-docker.pkg.dev/$PROJECT_ID/tasks-repo/tasks:$COMMIT_SHA'
