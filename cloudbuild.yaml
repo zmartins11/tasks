@@ -1,0 +1,30 @@
+steps:
+  # 1. Build do JAR
+  - name: 'gcr.io/cloud-builders/mvn'
+    args: ['clean', 'package', '-DskipTests']
+
+  # 2. Build da imagem Docker
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', 'europe-southwest1-docker.pkg.dev/$PROJECT_ID/tasks-repo/tasks:$COMMIT_SHA',
+      '.'
+    ]
+
+  # 3. Push da imagem para Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'europe-southwest1-docker.pkg.dev/$PROJECT_ID/tasks-repo/tasks:$COMMIT_SHA']
+
+  # 4. Deploy no Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args: [
+      'run', 'deploy', 'tasks-service',
+      '--image', 'europe-southwest1-docker.pkg.dev/$PROJECT_ID/tasks-repo/tasks:$COMMIT_SHA',
+      '--region', 'europe-southwest1',
+      '--platform', 'managed',
+      '--allow-unauthenticated'
+    ]
+
+images:
+  - 'europe-southwest1-docker.pkg.dev/$PROJECT_ID/tasks-repo/tasks:$COMMIT_SHA'
