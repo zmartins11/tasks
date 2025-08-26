@@ -45,7 +45,7 @@ public class TaskController {
 
     @GetMapping("/test")
     public String test() {
-        return "Test cloud build";
+        return "Test cloud build:v2";
     }
 
 
