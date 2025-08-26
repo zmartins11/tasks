@@ -2,6 +2,7 @@ steps:
   # 1. Build do JAR
   - name: 'gcr.io/cloud-builders/mvn'
     args: ['clean', 'package', '-DskipTests']
+    dir: 'tasks'
 
   # 2. Build da imagem Docker
   - name: 'gcr.io/cloud-builders/docker'
@@ -10,6 +11,7 @@ steps:
       '-t', 'europe-southwest1-docker.pkg.dev/$PROJECT_ID/tasks-repo/tasks:$COMMIT_SHA',
       '.'
     ]
+    dir: 'tasks'
 
   # 3. Push da imagem para Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
