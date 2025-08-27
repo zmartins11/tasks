@@ -31,7 +31,7 @@ public class TaskService {
 
     public Task createTask(Task task) {
         Task taskCreated = taskRepository.save(task);
-        //rabbitTemplate.convertAndSend(RabbitConfig.QUEUE_NAME, "testing rabbitMq service-stop-start");
+        //rabbitTemplate.convertAndSend(RabbitConfig.QUEUE_NAME, taskCreated.getEmail());
         return taskCreated;
     }
 

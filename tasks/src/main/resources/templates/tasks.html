@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="eng">
+<head>
+    <meta charset="UTF-8">
+    <title>Task List</title>
+</head>
+<body>
+<h1>All Tasks</h1>
+<table border="1">
+
+    <form action="/tasks/add" method="post" th:object="${task}">
+        <input type="text" th:field="*{name}" placeholder="Task name" required/>
+        <input type="text" th:field="*{description}" placeholder="Description" required/>
+        <input type="email" th:field="*{email}" placeholder="Email" required/>
+
+        <select th:field="*{status}" required>
+            <option value="" disabled selected>Select Status</option>
+            <option th:each="st : ${statuses}" th:value="${st}" th:text="${st}"></option>
+        </select>
+
+        <input type="datetime-local" th:field="*{scheduledAt}" required/>
+
+        <button type="submit">Add Task</button>
+    </form>
+
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Description</th>
+        <th>Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="task : ${tasks}">
+        <td th:text="${task.id}"></td>
+        <td th:text="${task.description}"></td>
+        <td th:text="${task.status}"></td>
+        <td>
+            <form th:action="@{/tasks/delete/{id}(id=${task.id})}" method="post">
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

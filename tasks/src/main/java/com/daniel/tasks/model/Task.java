@@ -17,6 +17,8 @@ public class Task {
 
     private String description;  // Descrição curta
 
+    private String email;
+
     @Enumerated(EnumType.STRING)
     private EnumStatus status;  // Estado da tarefa (PENDING, DONE)
 
@@ -70,5 +72,13 @@ public class Task {
 
     public void setScheduledAt(LocalDateTime scheduledAt) {
         this.scheduledAt = scheduledAt;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
